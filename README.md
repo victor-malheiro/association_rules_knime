@@ -248,8 +248,32 @@ CREATE INDEX index3 ON CovidDeaths (location, date)
 #### Partitioning
 Partitioning a table by an appropriate column can also enhance query performance, such as the date, can provide more efficient querying by scanning only relevant partitions. 
 For example, i can partition the CovidDeaths table by month, using the date column as the partition key. Bellow is an example of creating partitioned tables to separate the data of June of 2020.
+````
+-Partition on table CovidDeaths
+USE CovidDeaths
+GO
 
+--- create partition function
+CREATE PARTITION FUNCTION CovidDeaths_Partition (datetime2(0))
+AS RANGE RIGHT FOR VALUES ('2020-06-01', '2020-07-01') ;  
+GO  
+
+--- create scheme
+CREATE PARTITION SCHEME CovidDeaths_Scheme  
+    AS PARTITION CovidDeaths_Partition  
+    ALL TO ('PRIMARY') ;  
+GO 
+
+--- create table
+CREATE TABLE dbo.PartitionTable (date datetime2(0) PRIMARY KEY, location varchar(255), new_deaths(255))  
+    ON CovidDeaths_Scheme (date) ;  
+GO
+````
 
 Partitioning the table allows queries that filters or group by date to scan only the relevant partitions, resulting in faster query times. The decision to partition a table should be carefully 
 considered based on the size of the table, the frequency and complexity of the queries and the available resources.
 
+## Recommendations
+<div align="justify">To run the SQL queries, open the code file in Microsoft SQL Server Management Studio and load the tables using the excel files on the repository.</div></br>
+
+© 2024 Victor Malheiro
